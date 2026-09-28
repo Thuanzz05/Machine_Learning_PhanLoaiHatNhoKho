@@ -1,0 +1,9 @@
+[
+  { "name": "Area", "label": "Diện tích", "unit": "pixel²", "min": 0, "max": null, "exclusiveMin": true },
+  { "name": "MajorAxisLength", "label": "Độ dài trục lớn", "unit": "pixel", "min": 0, "max": null, "exclusiveMin": true },
+  { "name": "MinorAxisLength", "label": "Độ dài trục nhỏ", "unit": "pixel", "min": 0, "max": null, "exclusiveMin": true },
+  { "name": "Eccentricity", "label": "Độ lệch tâm", "unit": "không đơn vị", "min": 0, "max": 1, "exclusiveMin": false },
+  { "name": "ConvexArea", "label": "Diện tích bao lồi", "unit": "pixel²", "min": 0, "max": null, "exclusiveMin": true },
+  { "name": "Extent", "label": "Tỷ lệ lấp đầy", "unit": "không đơn vị", "min": 0, "max": 1, "exclusiveMin": true },
+  { "name": "Perimeter", "label": "Chu vi", "unit": "pixel", "min": 0, "max": null, "exclusiveMin": true }
+]

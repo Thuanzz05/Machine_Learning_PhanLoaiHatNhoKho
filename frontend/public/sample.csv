@@ -1,0 +1,4 @@
+Area,MajorAxisLength,MinorAxisLength,Eccentricity,ConvexArea,Extent,Perimeter
+80000,400,260,0.76,82000,0.70,1100
+95000,460,270,0.81,98000,0.73,1230
+65000,350,245,0.71,67500,0.68,980
