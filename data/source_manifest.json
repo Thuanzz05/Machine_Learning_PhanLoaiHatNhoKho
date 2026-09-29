@@ -13,7 +13,7 @@
   "paper_doi": "https://doi.org/10.30855/gmbd.2020.03.03",
   "downloaded_at_utc": "2026-09-29T01:37:22.537985+00:00",
   "download_time_basis": "existing_archive_last_modified_utc",
-  "verified_at_utc": "2026-09-29T01:39:22.683549+00:00",
+  "verified_at_utc": "2026-09-29T12:41:29.213277+00:00",
   "archive_sha256": "5d516c040923fd154ecf85e31b6e1b5a096724fa0e68d588c33fb5a2f0c3e5db",
   "checksum_basis": "SHA-256 of the official UCI download first acquired on 2026-09-29; pinned by this project, not a UCI-published checksum.",
   "files": [
