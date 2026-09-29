@@ -1,0 +1,41 @@
+import { useState } from 'react';
+
+type Score = { accuracy: number; f1_macro: number; roc_auc: number; n: number; confusion_matrix: number[][]; per_class: Record<string, { precision: number; recall: number; f1: number; support: number }> };
+type CV = { id: string; f1_macro_mean: number; f1_macro_std: number; accuracy_mean: number; roc_auc_mean: number; params: Record<string, unknown> };
+export type ModelInfo = { status: string; classes: string[]; metrics: Score | null; limitations: string[]; modelVersion?: string; candidateId?: string; selectedRole?: string; trainMetrics?: Score; comparison?: Record<string, { candidateId: string; train: Score; test: Score; cv: CV; gap: Record<string, number> }>; experiments?: CV[]; split?: { development: number; test: number }; source?: string; trainedAt?: string; evaluatedAt?: string; cvSeeds?: number[]; versions?: Record<string,string>; parity?: { passed: boolean; models: { cases: number; labelMismatches: number }[] } };
+export type Prediction = { rowIndex: number; label: string; probabilities: { Kecimen: number; Besni: number } };
+export type PredictionResult = { modelVersion: string; count: number; predictions: Prediction[] };
+const percent = (value: number) => `${(100 * value).toFixed(2)}%`;
+const labels: Record<string, string> = { majority: 'Lớp phổ biến', stump: 'Cây một tầng', tree: 'Cây cắt tỉa', forest: 'Random Forest' };
+
+export function Predictions({ result }: { result: PredictionResult }) {
+  const [page, setPage] = useState(0);
+  const start = page * 20;
+  function download() {
+    const text = ['row,label,p_Kecimen,p_Besni,model_version', ...result.predictions.map(p => `${p.rowIndex+1},${p.label},${p.probabilities.Kecimen},${p.probabilities.Besni},${result.modelVersion}`)].join('\r\n');
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'raisin-predictions.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return <section className="panel results" aria-label="Kết quả dự đoán">
+    <div className="section-heading"><h2>Kết quả · {result.count} mẫu</h2><button className="secondary" onClick={download}>Tải kết quả CSV</button></div>
+    {result.count === 1 && <div className="prediction-highlight"><span>Giống được dự đoán</span><strong>{result.predictions[0].label}</strong><p>Xác suất do mô hình ước lượng: {percent(result.predictions[0].probabilities[result.predictions[0].label as 'Kecimen' | 'Besni'])}</p></div>}
+    <div className="table-scroll"><table><caption>Dòng tính từ 1 sau header; xác suất chưa hiệu chuẩn.</caption><thead><tr><th>Dòng</th><th>Nhãn dự đoán</th><th>P(Kecimen)</th><th>P(Besni)</th></tr></thead><tbody>{result.predictions.slice(start,start+20).map(p => <tr key={p.rowIndex}><td>{p.rowIndex+1}</td><td><strong>{p.label}</strong></td><td>{percent(p.probabilities.Kecimen)}</td><td>{percent(p.probabilities.Besni)}</td></tr>)}</tbody></table></div>
+    {result.count > 20 && <div className="pagination"><button className="secondary" disabled={page===0} onClick={() => setPage(page-1)}>Trước</button><span>{start+1}–{Math.min(start+20,result.count)} / {result.count}</span><button className="secondary" disabled={start+20>=result.count} onClick={() => setPage(page+1)}>Sau</button></div>}
+    <p className="muted">Phiên bản {result.modelVersion}. Kết quả hỗ trợ tham khảo; xác suất không bảo đảm đúng cho từng mẫu.</p>
+  </section>;
+}
+
+const figures: Record<string,string> = { depth_curve: 'E01 · Độ sâu cây', pruning_path: 'E02 · Pruning path', alpha_curve: 'E02 · Chọn mức cắt tỉa', forest_curve: 'E03 · 50/100/300 cây', seed_stability: 'E04 · Năm seed', confusion_matrices: 'Ma trận nhầm lẫn', roc_test: 'ROC trên test', train_test_gap: 'Chênh lệch train–test', error_groups: 'Phân tích nhóm lỗi', final_tree: 'Cây cuối đầy đủ', eda_distributions: 'Phân bố dữ liệu phát triển', eda_correlation: 'Tương quan dữ liệu phát triển' };
+
+export function Dashboard({ model }: { model: ModelInfo | null }) {
+  const [chart, setChart] = useState('depth_curve');
+  if (!model || model.status !== 'ready' || !model.metrics) return <section className="panel empty"><h2>Chưa có kết quả được xác minh</h2><p>Kiểm tra kết nối và tệp mô hình. Hệ thống chỉ hiển thị kết quả đánh giá thật đã lưu.</p></section>;
+  return <>
+    <section className="metric-grid" aria-label="Chỉ số test"><div><span>Accuracy</span><strong>{percent(model.metrics.accuracy)}</strong></div><div><span>F1-macro</span><strong>{model.metrics.f1_macro.toFixed(4)}</strong></div><div><span>ROC-AUC</span><strong>{model.metrics.roc_auc.toFixed(4)}</strong></div></section>
+    <p className="muted">{labels[model.selectedRole ?? '']} · {model.candidateId} · {model.metrics.n} mẫu test độc lập. Chọn mô hình bằng validation trước khi mở test.</p>
+    <section className="panel"><h2>So sánh bốn mô hình</h2><div className="table-scroll"><table><caption>CV: mean ± std của 5 trung bình theo seed; std không phải khoảng tin cậy.</caption><thead><tr><th>Mô hình</th><th>F1 validation</th><th>Accuracy test</th><th>F1 test</th><th>AUC test</th><th>Gap F1 train–test</th></tr></thead><tbody>{Object.entries(model.comparison ?? {}).map(([role, item]) => <tr key={role} className={role === model.selectedRole ? 'selected-row' : ''}><td>{labels[role]}{role === model.selectedRole && ' · đang dùng'}</td><td>{item.cv.f1_macro_mean.toFixed(4)} ± {item.cv.f1_macro_std.toFixed(4)}</td><td>{percent(item.test.accuracy)}</td><td>{item.test.f1_macro.toFixed(4)}</td><td>{item.test.roc_auc.toFixed(4)}</td><td>{(item.gap.f1_macro*100).toFixed(2)} điểm %</td></tr>)}</tbody></table></div></section>
+    <section className="panel"><div className="section-heading"><h2>Thí nghiệm và phân tích</h2><label>Chọn biểu đồ<select value={chart} onChange={e => setChart(e.target.value)}>{Object.entries(figures).map(([key,title]) => <option key={key} value={key}>{title}</option>)}</select></label></div><figure className="experiment-figure"><img src={`/figures/${chart}.png`} alt={figures[chart]} /><figcaption>{figures[chart]}. Hình được sinh từ thí nghiệm đã lưu, không cập nhật theo CSV người dùng.</figcaption></figure></section>
+    <section className="panel"><h2>Chất lượng theo giống</h2><div className="table-scroll"><table><caption>Kết quả mô hình đang phục vụ trên test; hàng ma trận = nhãn thật, cột = dự đoán.</caption><thead><tr><th>Giống</th><th>Precision</th><th>Recall</th><th>F1</th><th>Số mẫu</th></tr></thead><tbody>{Object.entries(model.metrics.per_class).map(([name,s]) => <tr key={name}><td>{name}</td><td>{s.precision.toFixed(4)}</td><td>{s.recall.toFixed(4)}</td><td>{s.f1.toFixed(4)}</td><td>{s.support}</td></tr>)}</tbody></table></div><div className="confusion"><span>Thật / Dự đoán</span><strong>Kecimen</strong><strong>Besni</strong>{model.metrics.confusion_matrix.map((row,i) => <div className="matrix-row" key={i}><strong>{model.classes[i]}</strong>{row.map((n,j) => <span className={i===j?'correct':'incorrect'} key={j}>{n}</span>)}</div>)}</div></section>
+    <section className="panel"><h2>Hồ sơ mô hình</h2><dl><dt>Phiên bản</dt><dd>{model.modelVersion}</dd><dt>Nguồn</dt><dd><a href={model.source} target="_blank" rel="noreferrer">Raisin · UCI · CC BY 4.0</a></dd><dt>Chia tập</dt><dd>{model.split?.development} phát triển / {model.split?.test} test; 5 fold × 5 seed ({model.cvSeeds?.join(', ')}).</dd><dt>Chọn nhãn</dt><dd>P(Besni) ≥ 0,5 → Besni; còn lại Kecimen. Chưa hiệu chuẩn xác suất.</dd><dt>Huấn luyện</dt><dd>{model.trainedAt ? new Date(model.trainedAt).toLocaleString('vi-VN') : '—'}; seed cuối 42.</dd><dt>Python / Node</dt><dd>{model.parity?.passed ? `Đã đối chiếu ${model.parity.models.reduce((n,m)=>n+m.cases,0)} trường hợp trên bốn mô hình, không khác nhãn.` : 'Chưa xác minh'}</dd><dt>Giới hạn</dt><dd><ul>{model.limitations.map(t=><li key={t}>{t}</li>)}</ul></dd></dl></section>
+  </>;
+}

@@ -3,15 +3,16 @@ import { createRoot } from 'react-dom/client';
 import Papa from 'papaparse';
 import features from '../../shared/features.json';
 import './styles.css';
+import { Dashboard, Predictions, type ModelInfo, type PredictionResult } from './Results';
 
 type Row = Record<string, number>;
-type Model = { status: string; classes: string[]; metrics: null; limitations: string[] };
 const sample: Row = { Area: 80000, MajorAxisLength: 400, MinorAxisLength: 260, Eccentricity: 0.76, ConvexArea: 82000, Extent: 0.7, Perimeter: 1100 };
 const pages = ['Tổng quan', 'Phân loại', 'Đánh giá'] as const;
 
 function App() {
   const [page, setPage] = useState<(typeof pages)[number]>('Tổng quan');
-  const [model, setModel] = useState<Model | null>(null);
+  const [model, setModel] = useState<ModelInfo | null>(null);
+  const [result, setResult] = useState<PredictionResult | null>(null);
   const [connection, setConnection] = useState('Đang kết nối API…');
   const [values, setValues] = useState<Record<string, string>>({});
   const [rows, setRows] = useState<Row[]>([]);
@@ -23,29 +24,31 @@ function App() {
   useEffect(() => {
     const controller = new AbortController();
     fetch('/api/model', { signal: controller.signal })
-      .then(async response => { if (!response.ok) throw new Error(); return response.json() as Promise<Model>; })
-      .then(data => { setModel(data); setConnection('API đã kết nối · Chưa có mô hình'); })
+      .then(async response => { if (!response.ok) throw new Error(); return response.json() as Promise<ModelInfo>; })
+      .then(data => { setModel(data); setConnection(data.status === 'ready' ? 'API đã kết nối · Mô hình sẵn sàng' : 'API đã kết nối · Mô hình chưa sẵn sàng'); })
       .catch(error => { if (error.name !== 'AbortError') setConnection('Không kết nối được API'); });
     return () => controller.abort();
   }, []);
 
   async function classify(input: Row[]) {
-    setBusy(true); setMessage('Đang gửi dữ liệu…');
+    setResult(null); setBusy(true); setMessage('Đang gửi dữ liệu…');
     try {
       const response = await fetch('/api/raisin-classify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows: input }),
         signal: AbortSignal.timeout(15000),
       });
       const body = await response.json();
-      setMessage([body.message, ...(body.errors ?? []).slice(0, 5)].filter(Boolean).join('\n') || 'API chưa cung cấp kết quả.');
+      if (response.ok) { setResult(body as PredictionResult); setMessage(`Đã phân loại ${body.count} mẫu.`); }
+      else setMessage([body.message, ...(body.errors ?? []).slice(0, 5)].filter(Boolean).join('\n') || 'API chưa cung cấp kết quả.');
     } catch { setMessage('Không gửi được dữ liệu. Kiểm tra backend và thử lại.'); }
     finally { setBusy(false); }
   }
 
   async function readCsv(file?: File) {
-    setRows([]); setFileName(''); setMessage('');
+    setResult(null); setRows([]); setFileName(''); setMessage('');
     if (!file) return;
     if (file.size > 1024 * 1024) { setMessage('CSV tối đa 1 MB.'); return; }
+    setBusy(true);
     try {
       const parsed = Papa.parse<Record<string, string>>(await file.text(), { header: true, skipEmptyLines: 'greedy', transformHeader: header => header.trim() });
       const headers = parsed.meta.fields ?? [];
@@ -60,6 +63,7 @@ function App() {
       if (numericRows.some(row => row.MajorAxisLength < row.MinorAxisLength || row.ConvexArea < row.Area)) throw new Error('Trục lớn phải ≥ trục nhỏ; ConvexArea phải ≥ Area.');
       setRows(numericRows); setFileName(file.name); setMessage(`Đã đọc ${numericRows.length} mẫu. Chưa thực hiện dự đoán.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Không đọc được CSV.'); }
+    finally { setBusy(false); }
   }
 
   const measurements = rows.map(row => row[selectedFeature]);
@@ -80,30 +84,29 @@ function App() {
       {page === 'Tổng quan' && <>
         <section className="intro"><p className="eyebrow">TỪ HÌNH DẠNG ĐẾN DỰ ĐOÁN</p><h1>Hiểu dữ liệu.<br />Giải thích từng quyết định.</h1><p>Phân biệt Kecimen và Besni từ các đặc trưng hình học. Theo dõi thí nghiệm, kiểm tra đầu vào và đánh giá khả năng tổng quát của mô hình.</p><button className="primary" onClick={() => setPage('Phân loại')}>Mở công cụ phân loại <span aria-hidden="true">→</span></button></section>
         <div className="facts"><div><strong>900</strong><span>Mẫu trong bộ Raisin</span></div><div><strong>07</strong><span>Đặc trưng hình học</span></div><div><strong>02</strong><span>Giống nho khô</span></div></div>
-        <section className="panel scope"><div><h2>Phạm vi của project</h2><p>Đầu vào là số đo đã trích xuất từ ảnh. Ứng dụng hỗ trợ sàng lọc, không tự động quyết định loại sản phẩm.</p></div><div><h3>Trạng thái hiện tại</h3><p>Đã có giao diện và API kiểm tra dữ liệu. Chưa tải dữ liệu, huấn luyện hay đánh giá mô hình. Các chỉ số sẽ được bổ sung từ thí nghiệm thực tế.</p><a href="https://archive.ics.uci.edu/dataset/850/raisin" target="_blank" rel="noreferrer">Xem nguồn dữ liệu UCI ↗</a></div></section>
+        <section className="panel scope"><div><h2>Phạm vi của project</h2><p>Đầu vào là số đo đã trích xuất từ ảnh. Ứng dụng hỗ trợ sàng lọc, không tự động quyết định loại sản phẩm.</p></div><div><h3>Trạng thái hiện tại</h3><p>{model?.status === 'ready' ? `Mô hình ${model.candidateId} đã được chọn bằng validation, đánh giá trên ${model.metrics?.n} mẫu test và tích hợp dự đoán. Xem phương pháp và giới hạn tại trang Đánh giá.` : 'Đang chờ thông tin mô hình đã xác minh từ API.'}</p><a href="https://archive.ics.uci.edu/dataset/850/raisin" target="_blank" rel="noreferrer">Xem nguồn dữ liệu UCI ↗</a></div></section>
       </>}
       {page === 'Phân loại' && <>
         <div className="page-title"><p className="eyebrow">CÔNG CỤ</p><h1>Phân loại nho khô</h1><p>Nhập đủ 7 số đo hoặc tải CSV để kiểm tra nhiều mẫu.</p></div>
-        <div className="notice">Chưa có mô hình đã huấn luyện. Bạn có thể kiểm tra đầu vào; hệ thống chưa trả nhãn hay xác suất.</div>
-        <section className="panel"><div className="section-heading"><h2>Một mẫu</h2><button className="secondary" type="button" onClick={() => { setValues(Object.fromEntries(Object.entries(sample).map(([key, value]) => [key, String(value)]))); setMessage('Đã điền số liệu giả lập để kiểm tra form, không phải mẫu UCI.'); }}>Điền mẫu minh họa</button></div>
+        <div className="notice">{model?.status === 'ready' ? 'Nhập số đo cùng đơn vị với dữ liệu nguồn. Xác suất chưa hiệu chuẩn; kết quả chỉ hỗ trợ tham khảo.' : 'Mô hình chưa sẵn sàng. Kiểm tra kết nối và tệp mô hình.'}</div>
+        <section className="panel"><div className="section-heading"><h2>Một mẫu</h2><button className="secondary" type="button" disabled={busy} onClick={() => { setResult(null); setValues(Object.fromEntries(Object.entries(sample).map(([key, value]) => [key, String(value)]))); setMessage('Đã điền số liệu giả lập để kiểm tra form, không phải mẫu UCI.'); }}>Điền mẫu minh họa</button></div>
           <form onSubmit={event => { event.preventDefault(); void classify(Object.keys(values).length ? [Object.fromEntries(features.map(f => [f.name, Number(values[f.name])]))] : []); }}>
-            <div className="form-grid">{features.map(f => <label key={f.name} htmlFor={f.name}><span>{f.label}</span><small>{f.name} · {f.unit}</small><input id={f.name} type="number" step="any" min={f.min} max={f.max ?? undefined} required value={values[f.name] ?? ''} placeholder={f.max !== null ? `${f.exclusiveMin ? '>' : '≥'} ${f.min}, ≤ ${f.max}` : `> ${f.min}`} onChange={event => setValues({ ...values, [f.name]: event.target.value })} /></label>)}</div>
+            <div className="form-grid">{features.map(f => <label key={f.name} htmlFor={f.name}><span>{f.label}</span><small>{f.name} · {f.unit}</small><input disabled={busy} id={f.name} type="number" step="any" min={f.min} max={f.max ?? undefined} required value={values[f.name] ?? ''} placeholder={f.max !== null ? `${f.exclusiveMin ? '>' : '≥'} ${f.min}, ≤ ${f.max}` : `> ${f.min}`} onChange={event => { setResult(null); setValues({ ...values, [f.name]: event.target.value }); }} /></label>)}</div>
             <button className="primary" disabled={busy}>{busy ? 'Đang xử lý…' : 'Gửi mẫu'}</button>
           </form>
         </section>
-        <section className="panel"><div className="section-heading"><h2>Nhiều mẫu từ CSV</h2><a href="/sample.csv" download>Tải CSV minh họa ↓</a></div><p>Đúng 7 cột đặc trưng, tối đa 1.000 dòng và 1 MB. Tệp minh họa chứa số liệu giả lập để kiểm tra giao diện.</p><label className="upload">Chọn tệp CSV<input type="file" accept=".csv,text/csv" onChange={event => { void readCsv(event.target.files?.[0]); event.target.value = ''; }} /></label>
+        <section className="panel"><div className="section-heading"><h2>Nhiều mẫu từ CSV</h2><a href="/sample.csv" download>Tải CSV minh họa ↓</a></div><p>Đúng 7 cột đặc trưng, tối đa 1.000 dòng và 1 MB. Tệp minh họa chứa số liệu giả lập để kiểm tra giao diện.</p><label className="upload">Chọn tệp CSV<input disabled={busy} type="file" accept=".csv,text/csv" onChange={event => { void readCsv(event.target.files?.[0]); event.target.value = ''; }} /></label>
           {rows.length > 0 && <><p><strong>{fileName}</strong> · {rows.length} mẫu hợp lệ về định dạng</p><div className="table-scroll"><table><caption>Xem trước tối đa 5 mẫu</caption><thead><tr>{features.map(f => <th key={f.name}>{f.name}</th>)}</tr></thead><tbody>{rows.slice(0, 5).map((row, i) => <tr key={i}>{features.map(f => <td key={f.name}>{row[f.name]}</td>)}</tr>)}</tbody></table></div>
             <label className="chart-select">Phân bố đặc trưng<select value={selectedFeature} onChange={event => setSelectedFeature(event.target.value)}>{features.map(f => <option key={f.name}>{f.name}</option>)}</select></label>
             <div className="histogram" role="img" aria-label={`Phân bố ${selectedFeature}: ${counts.join(', ')} mẫu trong 6 khoảng từ ${min} đến ${max}.`}>{counts.map((count, i) => <div className="bin" key={i}><span>{count}</span><div style={{ height: `${count / Math.max(...counts, 1) * 100}px` }} /><small>{(min + (max - min) * i / 6).toFixed(2)}</small></div>)}</div><p className="muted">6 khoảng từ {min} đến {max}; biểu đồ chỉ mô tả tệp vừa tải, không phải dữ liệu đánh giá.</p>
             <button className="primary" disabled={busy} onClick={() => void classify(rows)}>Gửi {rows.length} mẫu</button></>}
         </section>
+        {result && <Predictions result={result} />}
         <div className="feedback" role="status" aria-live="polite">{message}</div>
       </>}
       {page === 'Đánh giá' && <>
         <div className="page-title"><p className="eyebrow">THÍ NGHIỆM & GIỚI HẠN</p><h1>Đánh giá mô hình</h1><p>Kết quả cần đến từ các thí nghiệm có thể chạy lại.</p></div>
-        <section className="panel empty"><span className="empty-symbol" aria-hidden="true">∅</span><h2>Chưa có kết quả đánh giá</h2><p>Accuracy, F1, ROC-AUC và ma trận nhầm lẫn sẽ được hiển thị sau khi hoàn thành huấn luyện và đánh giá độc lập. Không sử dụng số liệu minh họa làm kết quả.</p></section>
-        <section className="panel"><h2>Bốn thí nghiệm bắt buộc</h2><ol className="experiments"><li>So sánh train và validation theo độ sâu cây.</li><li>Phân tích pruning path và chọn ccp_alpha.</li><li>So sánh rừng ngẫu nhiên với 50, 100 và 300 cây.</li><li>Đánh giá độ ổn định qua ít nhất 5 seed; báo mean ± std.</li></ol></section>
-        <section className="panel"><h2>Model card</h2><dl><dt>Trạng thái</dt><dd>{model ? 'Chưa huấn luyện' : 'Chưa tải được thông tin từ API'}</dd><dt>Nhãn đầu ra dự kiến</dt><dd>Kecimen / Besni</dd><dt>Giới hạn</dt><dd><ul>{(model?.limitations ?? ['Chưa có mô hình để kiểm chứng chất lượng dự đoán.']).map(text => <li key={text}>{text}</li>)}</ul></dd></dl></section>
+        <Dashboard model={model} />
       </>}
       <footer>Raisin Lab · Bài tập lớn Học máy cơ bản <span>React + TypeScript / Node.js</span></footer>
     </main>
