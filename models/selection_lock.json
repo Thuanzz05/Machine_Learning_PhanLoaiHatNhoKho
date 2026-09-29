@@ -1,0 +1,42 @@
+{
+  "created_at_utc": "2026-09-29T12:42:44.177002+00:00",
+  "selection_basis": "Development CV only, before final test",
+  "serving_role": "tree",
+  "protocol_sha256": "a863aadcb2521db7870ec36cf3f292b43c567b9540e2ea36f8cb70598195f00b",
+  "split_sha256": "69c5adfb1e3d719080ba19adbea6fc4e0d61c75c032629167f28c0907ee525c3",
+  "processed_sha256": "696d21738170389119d131b6ccf9af437e530a67c3adde1c60a165cb6a1f9224",
+  "serving_sha256": "fe3677bd45ef867defd8c6ba2d667b2d417d09bba39b14ed554d26140733d536",
+  "error_groups_sha256": "f47cf710544454522a9406d746bc9358c2e9903a8dd22d74c2e4af6967e70135",
+  "selected_candidates": {
+    "majority": "majority",
+    "stump": "stump",
+    "tree": "alpha_0.01",
+    "forest": "forest_300"
+  },
+  "models": {
+    "majority": {
+      "joblib_sha256": "b068f7e85e5e180c12df6efc20982c6b0c71de4478935e67dabbe1e9e5451513",
+      "json_sha256": "0a50a8ad0512f89fb92be7da2688d27832b67d4e371ee8ce1c97f52358be0907"
+    },
+    "stump": {
+      "joblib_sha256": "6b4ccac68a5264d3b4409fe49310de813e12836886b0e84d20aee63d9415ed38",
+      "json_sha256": "e9ec079bc1f2258e0b6c8bd0ce99ee047d159cb3a2124dad5622d9cd92d06f5f"
+    },
+    "tree": {
+      "joblib_sha256": "6c879a9fc71a7e404ad70344482124c7bbc2e72e95e94359c76a6f3bbcb0a83c",
+      "json_sha256": "fe3677bd45ef867defd8c6ba2d667b2d417d09bba39b14ed554d26140733d536"
+    },
+    "forest": {
+      "joblib_sha256": "bf94e15ef76879856aff4be97c8eae5b4b02775e83d733f79b996654bf446ead",
+      "json_sha256": "49efa705aff25c74951caf4211dba2a25873f01e57ca1654908f4ed3fdee15d3"
+    }
+  },
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "matplotlib": "3.10.7",
+    "openpyxl": "3.1.5",
+    "joblib": "1.5.2"
+  }
+}

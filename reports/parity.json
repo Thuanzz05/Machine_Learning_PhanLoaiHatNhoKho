@@ -1,0 +1,47 @@
+{
+  "source": "Only development data and synthetic threshold probes; no test samples",
+  "tolerance": 0.000001,
+  "models": [
+    {
+      "role": "majority",
+      "modelSha256": "0a50a8ad0512f89fb92be7da2688d27832b67d4e371ee8ce1c97f52358be0907",
+      "cases": 720,
+      "developmentCount": 720,
+      "syntheticCount": 0,
+      "labelMismatches": 0,
+      "maxProbabilityError": 0,
+      "passed": true
+    },
+    {
+      "role": "stump",
+      "modelSha256": "e9ec079bc1f2258e0b6c8bd0ce99ee047d159cb3a2124dad5622d9cd92d06f5f",
+      "cases": 723,
+      "developmentCount": 720,
+      "syntheticCount": 3,
+      "labelMismatches": 0,
+      "maxProbabilityError": 0,
+      "passed": true
+    },
+    {
+      "role": "tree",
+      "modelSha256": "fe3677bd45ef867defd8c6ba2d667b2d417d09bba39b14ed554d26140733d536",
+      "cases": 729,
+      "developmentCount": 720,
+      "syntheticCount": 9,
+      "labelMismatches": 0,
+      "maxProbabilityError": 0,
+      "passed": true
+    },
+    {
+      "role": "forest",
+      "modelSha256": "49efa705aff25c74951caf4211dba2a25873f01e57ca1654908f4ed3fdee15d3",
+      "cases": 1020,
+      "developmentCount": 720,
+      "syntheticCount": 300,
+      "labelMismatches": 0,
+      "maxProbabilityError": 0,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

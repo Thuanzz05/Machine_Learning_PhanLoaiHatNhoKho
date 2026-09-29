@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "scope": "Fresh isolated project directory on the same host and installed environment; not a second physical computer.",
+  "checks": {
+    "split_identical": true,
+    "selected_candidates_identical": true,
+    "serving_model_identical": true,
+    "all_json_models_identical": true,
+    "test_metrics_identical": true,
+    "test_predictions_identical": true
+  },
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "matplotlib": "3.10.7",
+    "openpyxl": "3.1.5",
+    "joblib": "1.5.2"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "alpha_0.01",
+  "kind": "tree",
+  "features": [
+    "Area",
+    "MajorAxisLength",
+    "MinorAxisLength",
+    "Eccentricity",
+    "ConvexArea",
+    "Extent",
+    "Perimeter"
+  ],
+  "classes": [
+    "Kecimen",
+    "Besni"
+  ],
+  "inputDtype": "float32",
+  "threshold": 0.5,
+  "tieClass": "Besni",
+  "trees": [
+    {
+      "left": [
+        1,
+        2,
+        -1,
+        -1,
+        5,
+        -1,
+        -1
+      ],
+      "right": [
+        4,
+        3,
+        -1,
+        -1,
+        6,
+        -1,
+        -1
+      ],
+      "feature": [
+        6,
+        3,
+        -2,
+        -2,
+        1,
+        -2,
+        -2
+      ],
+      "threshold": [
+        1122.4955444335938,
+        0.8710394203662872,
+        -2.0,
+        -2.0,
+        449.4825897216797,
+        -2.0,
+        -2.0
+      ],
+      "pBesni": [
+        0.5,
+        0.13186813186813187,
+        0.11299435028248588,
+        0.8,
+        0.8764044943820225,
+        0.6129032258064516,
+        0.9695817490494296
+      ]
+    }
+  ]
+}

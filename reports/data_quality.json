@@ -1,0 +1,37 @@
+{
+  "source_sha256": "5d516c040923fd154ecf85e31b6e1b5a096724fa0e68d588c33fb5a2f0c3e5db",
+  "rows": 900,
+  "features": [
+    "Area",
+    "MajorAxisLength",
+    "MinorAxisLength",
+    "Eccentricity",
+    "ConvexArea",
+    "Extent",
+    "Perimeter"
+  ],
+  "class_counts": {
+    "Kecimen": 450,
+    "Besni": 450
+  },
+  "missing": {
+    "Area": 0,
+    "MajorAxisLength": 0,
+    "MinorAxisLength": 0,
+    "Eccentricity": 0,
+    "ConvexArea": 0,
+    "Extent": 0,
+    "Perimeter": 0,
+    "Class": 0
+  },
+  "duplicate_rows_surplus": 0,
+  "duplicate_feature_rows": 0,
+  "conflicting_label_groups": 0,
+  "invalid_geometry_excel_rows": [],
+  "removed_rows": [],
+  "changes": "No rows removed or values modified.",
+  "limitations": [
+    "No original fruit/batch IDs; dependence beyond identical feature vectors cannot be ruled out.",
+    "No statistical outlier removal; EDA and thresholds use development data only."
+  ]
+}
