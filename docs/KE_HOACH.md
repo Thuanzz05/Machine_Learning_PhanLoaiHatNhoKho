@@ -1,5 +1,12 @@
 # Checklist bài tập lớn
 
+## Tiến độ thực hiện từng bước
+
+- [x] **Bước 1 — W01:** Lập [bản chốt bài toán, phạm vi và tiêu chí hoàn thành](BUOC_01_CHOT_YEU_CAU.md). Các lựa chọn đánh giá là phương án ban đầu; chưa chia tập hoặc huấn luyện.
+- [ ] **Bước 2 — W02:** Tải dữ liệu thật, ghi hồ sơ nguồn/checksum/giấy phép và lập từ điển dữ liệu.
+
+Xem [kế hoạch phân tích nghiệp vụ và yêu cầu](KE_HOACH_PHAN_TICH_NGHIEP_VU_VA_YEU_CAU.md) để tra W01–W13, thí nghiệm và điều kiện nghiệm thu. Tên thành viên và hạn nộp vẫn chờ thông tin thực tế.
+
 ## Đã có trong khung project
 - [x] React + TypeScript, backend Node.js, lệnh chạy chung.
 - [x] Ba trang: tổng quan; nhập mẫu/CSV; đánh giá/model card.
@@ -23,7 +30,6 @@
 - [ ] Nạp model đã lưu trong Node, trả nhãn và xác suất thật.
 - [ ] Đối chiếu kết quả suy luận Node với pipeline Python.
 - [ ] Dashboard kết quả thật; model card gồm phiên bản, split, metrics và giới hạn.
-- [ ] Cảnh báo ngoài miền dựa trên train; không tự sửa input.
 - [ ] Chạy lại trên máy sạch; script train/evaluate tách biệt.
 - [ ] Báo cáo 15–25 trang (PDF + DOCX/LaTeX), đúng đề cương giao nhiệm vụ.
 - [ ] 10–12 slide; demo 5–7 phút; tổng trình bày 12–15 phút và vấn đáp.
@@ -31,4 +37,11 @@
 - [ ] Cả hai thành viên có đóng góp dữ liệu/mô hình và web/báo cáo.
 - [ ] Ghi nguồn hình/bảng, sử dụng AI và cách kiểm chứng.
 
-Phần mở rộng chỉ làm khi phần bắt buộc hoàn chỉnh: phát hiện ngoài miền hoặc so permutation importance. Không bắt buộc cloud, mobile, deep learning hay database.
+## Phần mở rộng tùy chọn
+
+Chỉ thực hiện sau khi phần bắt buộc hoàn chỉnh:
+
+- [ ] Cảnh báo ngoài miền dựa trên train; không tự sửa input.
+- [ ] So sánh permutation importance với độ quan trọng theo cây.
+
+Không bắt buộc cloud, mobile, deep learning hay database.

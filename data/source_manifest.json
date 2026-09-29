@@ -1,0 +1,114 @@
+{
+  "manifest_version": 1,
+  "dataset": "Raisin",
+  "uci_id": 850,
+  "source_page": "https://archive.ics.uci.edu/dataset/850/raisin",
+  "download_url": "https://archive.ics.uci.edu/static/public/850/raisin.zip",
+  "doi": "https://doi.org/10.24432/C5660T",
+  "license": {
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "citation": "Çinar, İ., Koklu, M., & Tasdemir, S. (2020). Raisin [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5660T.",
+  "paper_doi": "https://doi.org/10.30855/gmbd.2020.03.03",
+  "downloaded_at_utc": "2026-09-29T01:37:22.537985+00:00",
+  "download_time_basis": "existing_archive_last_modified_utc",
+  "verified_at_utc": "2026-09-29T01:39:22.683549+00:00",
+  "archive_sha256": "5d516c040923fd154ecf85e31b6e1b5a096724fa0e68d588c33fb5a2f0c3e5db",
+  "checksum_basis": "SHA-256 of the official UCI download first acquired on 2026-09-29; pinned by this project, not a UCI-published checksum.",
+  "files": [
+    {
+      "path": "raw/raisin.zip",
+      "bytes": 114677,
+      "sha256": "5d516c040923fd154ecf85e31b6e1b5a096724fa0e68d588c33fb5a2f0c3e5db"
+    },
+    {
+      "path": "raw/Raisin_Dataset.zip",
+      "bytes": 114689,
+      "sha256": "37626bf8cc184690a616b1a7642f0ce13b70cca849ffe842c0a8b1f6302ea115"
+    },
+    {
+      "path": "raw/Raisin_Dataset/Raisin_Dataset.xlsx",
+      "bytes": 84166,
+      "sha256": "9370b5f749a572a0bbeae15c93bf2e15c859b06d2626ae401b844c0a925fa553"
+    },
+    {
+      "path": "raw/Raisin_Dataset/Raisin_Dataset.arff",
+      "bytes": 69743,
+      "sha256": "8a33803b5961650225150740fa09fa31ee8875266277c7ac3291e2a3ee351814"
+    },
+    {
+      "path": "raw/Raisin_Dataset/Raisin_Dataset.txt",
+      "bytes": 2426,
+      "sha256": "329a238d4998b5fe869b0f39b5409542dd247a6448e3acf29f07fb8a4b8265a0"
+    }
+  ],
+  "inspection": {
+    "sheet_names": [
+      "Raisin_Grains_Dataset",
+      "Citation_Request"
+    ],
+    "data_sheet": "Raisin_Grains_Dataset",
+    "header_excel_row": 1,
+    "first_data_excel_row": 2,
+    "last_data_excel_row": 901,
+    "row_count": 900,
+    "feature_count": 7,
+    "columns": [
+      "Area",
+      "MajorAxisLength",
+      "MinorAxisLength",
+      "Eccentricity",
+      "ConvexArea",
+      "Extent",
+      "Perimeter",
+      "Class"
+    ],
+    "class_counts": {
+      "Kecimen": 450,
+      "Besni": 450
+    },
+    "missing_by_column": {
+      "Area": 0,
+      "MajorAxisLength": 0,
+      "MinorAxisLength": 0,
+      "Eccentricity": 0,
+      "ConvexArea": 0,
+      "Extent": 0,
+      "Perimeter": 0,
+      "Class": 0
+    },
+    "cell_types_by_column": {
+      "Area": {
+        "int": 900
+      },
+      "MajorAxisLength": {
+        "float": 900
+      },
+      "MinorAxisLength": {
+        "float": 900
+      },
+      "Eccentricity": {
+        "float": 900
+      },
+      "ConvexArea": {
+        "int": 900
+      },
+      "Extent": {
+        "float": 900
+      },
+      "Perimeter": {
+        "float": 900
+      },
+      "Class": {
+        "str": 900
+      }
+    },
+    "scope": "Source structure only; no cleaning, duplicate audit, EDA, split or training."
+  },
+  "data_changes": "None. Original ZIP, XLSX, ARFF and TXT bytes are preserved.",
+  "inspection_environment": {
+    "python": "3.12.14",
+    "openpyxl": "3.1.5"
+  }
+}

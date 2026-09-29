@@ -2,6 +2,12 @@
 
 Khung bài tập lớn phân loại Kecimen/Besni: **React + TypeScript (TSX)** cho giao diện, **Node.js + Express** cho backend. Python chỉ dùng cho học máy offline; không dùng Flask.
 
+## Tiến độ và yêu cầu
+
+- [Bước 1 — Chốt bài toán, phạm vi và tiêu chí hoàn thành](docs/BUOC_01_CHOT_YEU_CAU.md): đã lập bản yêu cầu; bước tiếp theo là tải dữ liệu thật.
+- [Kế hoạch phân tích nghiệp vụ và yêu cầu đầy đủ](docs/KE_HOACH_PHAN_TICH_NGHIEP_VU_VA_YEU_CAU.md): căn cứ từ đề, tài liệu cục bộ và GitHub Bài 6 v3.
+- [Checklist thực hiện](docs/KE_HOACH.md): theo dõi phần đã làm và các việc còn lại.
+
 ## Chạy project
 
 Cài Node.js 22.12+ (đã kiểm tra trên 22.20). Tại thư mục gốc:
