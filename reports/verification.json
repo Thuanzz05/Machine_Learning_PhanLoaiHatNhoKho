@@ -1,0 +1,61 @@
+{
+  "checked_at_utc": "2026-09-30T06:34:48.385528+00:00",
+  "base_commit": "291f24798f69948a386c4abb4cb14017e5233586",
+  "branch": "viet",
+  "scope": "Current local changes after pull, on the same Windows host; no second-machine validation.",
+  "build": {
+    "typescript": "passed",
+    "vite": "passed"
+  },
+  "tests": {
+    "frontend_csv": {
+      "passed": 4,
+      "failed": 0
+    },
+    "backend_api_model": {
+      "passed": 6,
+      "failed": 0
+    },
+    "python": {
+      "passed": 11,
+      "failed": 0
+    }
+  },
+  "reproduction": {
+    "passed": true,
+    "scope": "Fresh isolated project directory on the same host and installed environment; not a second physical computer.",
+    "checks": {
+      "split_identical": true,
+      "selected_candidates_identical": true,
+      "serving_model_identical": true,
+      "all_json_models_identical": true,
+      "test_metrics_identical": true,
+      "test_predictions_identical": true
+    },
+    "versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.3.3",
+      "scikit-learn": "1.7.2",
+      "matplotlib": "3.10.7",
+      "openpyxl": "3.1.5",
+      "joblib": "1.5.2"
+    }
+  },
+  "browser": {
+    "single_sample": "Kecimen; P(Kecimen)=0.8870056497175142",
+    "invalid_form": "MajorAxisLength < MinorAxisLength rejected",
+    "sample_csv": "3 rows; labels Kecimen, Besni, Kecimen in source order",
+    "invalid_csv": "Row 2 MajorAxisLength error shown; batch rejected",
+    "pagination": "21-row batch: next page shows only row 21; next disabled",
+    "download": "Downloaded CSV files read back: 3 and 21 rows, row order, probabilities and model version verified",
+    "dashboard": "Metrics match artifacts; pruning path selector displays /figures/pruning_path.png",
+    "responsive": "375 px viewport (360 px content plus scrollbar); overview, form and dashboard have no horizontal page overflow"
+  },
+  "model_version": "raisin-1-fe3677bd45ef",
+  "deferred_by_user": [
+    "Report document and presentation production"
+  ],
+  "remaining_external_validation": [
+    "Reproduce on a second physical computer"
+  ]
+}
