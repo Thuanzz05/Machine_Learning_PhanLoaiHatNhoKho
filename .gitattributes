@@ -1,0 +1,19 @@
+# Source code uses LF consistently, independent of a developer's core.autocrlf.
+* text=auto
+*.py text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+ml/protocol.json text eol=lf
+shared/*.json text eol=lf
+
+# Frozen artifacts were originally hashed with CRLF. Preserve those exact bytes
+# on every OS, including Linux, so historical checksums/model versions stay valid.
+data/*.json text eol=crlf
+data/processed/*.csv text eol=crlf
+models/*.json text eol=crlf
+reports/*.json text eol=crlf
+reports/*.csv text eol=crlf

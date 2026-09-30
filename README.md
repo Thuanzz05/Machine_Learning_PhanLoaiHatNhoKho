@@ -1,6 +1,6 @@
 # Raisin Lab — Project 18
 
-Khung bài tập lớn phân loại Kecimen/Besni: **React + TypeScript (TSX)** cho giao diện, **Node.js + Express** cho backend. Python chỉ dùng cho học máy offline; không dùng Flask.
+Ứng dụng phân loại Kecimen/Besni: **React + TypeScript (TSX)** cho giao diện, **Node.js + Express** cho backend. Python dùng cho học máy offline.
 
 ## Tiến độ và yêu cầu
 
@@ -18,7 +18,7 @@ Tài liệu theo dõi:
 
 ## Chạy project
 
-Cài Node.js 22.12+ (đã kiểm tra trên 22.20). Tại thư mục gốc:
+Cài Node.js 22.12+ (bản đang kiểm tra: 24.13.0). Tại thư mục gốc:
 
 ```sh
 npm ci
@@ -36,7 +36,20 @@ npm run build
 npm start
 ```
 
-Mở http://127.0.0.1:3001. `npm test` chạy kiểm thử API và validation.
+Mở http://127.0.0.1:3001. `npm test` chạy 4 kiểm thử CSV frontend và 6 kiểm thử API/mô hình backend.
+
+## Tái lập học máy
+
+Dùng Python 3.12 với bộ thư viện đã khóa. Từ bản checkout hiện tại:
+
+```sh
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements-lock.txt
+.venv\Scripts\python scripts/reproduce.py
+.venv\Scripts\python -m unittest discover -s ml -p "test_*.py" -v
+```
+
+Script tự chuẩn bị dữ liệu rồi huấn luyện trong thư mục riêng, đối chiếu với artifact đã khóa. Không chạy `ml/train.py` tại gốc vì test đã được đánh giá. Trên macOS/Linux, thay `.venv\Scripts\python` bằng `.venv/bin/python`. Xem [hướng dẫn học máy](ml/README.md) về thứ tự bước và kiểm checksum khi checkout.
 
 ## Cấu trúc
 
