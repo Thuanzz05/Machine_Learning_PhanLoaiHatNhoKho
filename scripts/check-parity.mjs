@@ -21,6 +21,6 @@ for (const bundle of input.models) {
   output.models.push({ role: bundle.role, modelSha256: sha, cases: predictions.length, developmentCount: bundle.development_count, syntheticCount: bundle.synthetic_count, labelMismatches: mismatches, maxProbabilityError: maxError, passed });
   output.passed &&= passed;
 }
-fs.writeFileSync(`${root}/reports/parity.json`, `${JSON.stringify(output, null, 2)}\n`);
+fs.writeFileSync(`${root}/reports/parity.json`, `${JSON.stringify(output, null, 2)}\n`.replace(/\n/g, '\r\n'));
 console.log(JSON.stringify(output, null, 2));
 if (!output.passed) process.exitCode = 1;

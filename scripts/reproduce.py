@@ -12,6 +12,9 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 def main():
+    # A clean checkout has no ignored raw ZIP. Fetch and verify it before copying.
+    subprocess.run([sys.executable, str(ROOT / "ml/download_data.py")], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(ROOT / "ml/data.py")], cwd=ROOT, check=True)
     target = ROOT / ".cache" / f"reproduction-{uuid.uuid4().hex[:8]}"
     target.mkdir(parents=True)
     for relative in ["ml", "shared"]:
@@ -34,7 +37,7 @@ def main():
         "test_predictions_identical": original["predictions_sha256"] == repeated["predictions_sha256"],
     }
     report = {"passed": all(checks.values()), "scope": "Fresh isolated project directory on the same host and installed environment; not a second physical computer.", "checks": checks, "versions": original_lock["versions"]}
-    (ROOT / "reports/reproduction.json").write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (ROOT / "reports/reproduction.json").write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8", newline="\r\n")
     print(json.dumps(report, indent=2), flush=True)
     if not report["passed"]: raise SystemExit(1)
 
