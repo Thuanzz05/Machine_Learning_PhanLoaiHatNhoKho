@@ -1,6 +1,8 @@
-import { StrictMode, useEffect, useState } from 'react';
+import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { parseCsv, type Row } from './csv';
+import { ApiFailure, requestJson } from './api';
+import { histogram } from './histogram';
 import features from '../../shared/features.json' with { type: 'json' };
 import './styles.css';
 import { Dashboard, Predictions, type ModelInfo, type PredictionResult } from './Results';
@@ -13,36 +15,49 @@ function App() {
   const [model, setModel] = useState<ModelInfo | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [connection, setConnection] = useState('Đang kết nối API…');
+  const [connecting, setConnecting] = useState(true);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rows, setRows] = useState<Row[]>([]);
   const [fileName, setFileName] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState('Area');
+  const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { window.scrollTo({ top: 0 }); }, [page]);
+  useEffect(() => {
+    if (result && resultRef.current) {
+      resultRef.current.scrollIntoView({ block: 'start' });
+      resultRef.current.focus({ preventScroll: true });
+    }
+  }, [result]);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/model', { signal: controller.signal })
-      .then(async response => { if (!response.ok) throw new Error(); return response.json() as Promise<ModelInfo>; })
+    setConnecting(true); setModel(null); setConnection('Đang kết nối API…');
+    requestJson<ModelInfo>('/api/model', { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) })
       .then(data => { setModel(data); setConnection(data.status === 'ready' ? 'API đã kết nối · Mô hình sẵn sàng' : 'API đã kết nối · Mô hình chưa sẵn sàng'); })
-      .catch(error => { if (error.name !== 'AbortError') setConnection('Không kết nối được API'); });
+      .catch(() => { if (!controller.signal.aborted) setConnection('Không kết nối được API'); })
+      .finally(() => { if (!controller.signal.aborted) setConnecting(false); });
     return () => controller.abort();
-  }, []);
+  }, [connectionAttempt]);
 
   async function classify(input: Row[]) {
     if (model?.status !== 'ready' || busy) return;
     setResult(null); setBusy(true); setMessage('Đang gửi dữ liệu…');
     try {
-      const response = await fetch('/api/raisin-classify', {
+      const body = await requestJson<PredictionResult>('/api/raisin-classify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows: input }),
         signal: AbortSignal.timeout(15000),
       });
-      const body = await response.json();
-      if (response.ok) { setResult(body as PredictionResult); setMessage(`Đã phân loại ${body.count} mẫu.`); }
-      else setMessage([body.message, ...(body.errors ?? []).slice(0, 5)].filter(Boolean).join('\n') || 'API chưa cung cấp kết quả.');
-    } catch { setMessage('Không gửi được dữ liệu. Kiểm tra backend và thử lại.'); }
+      setResult(body); setMessage(`Đã phân loại ${body.count} mẫu.`);
+    } catch (error) {
+      setMessage(error instanceof ApiFailure ? error.message : 'Không gửi được dữ liệu. Kiểm tra backend và kết nối lại.');
+      if (!(error instanceof ApiFailure) || error.status >= 500) {
+        setModel(null); setConnection('Kết nối hoặc mô hình chưa sẵn sàng');
+      }
+    }
     finally { setBusy(false); }
   }
 
@@ -58,11 +73,9 @@ function App() {
     finally { setBusy(false); }
   }
 
-  const measurements = rows.map(row => row[selectedFeature]);
-  const min = measurements.length ? Math.min(...measurements) : 0;
-  const max = measurements.length ? Math.max(...measurements) : 0;
-  const counts = Array.from({ length: 6 }, () => 0);
-  measurements.forEach(value => counts[max === min ? 0 : Math.min(5, Math.floor((value - min) / (max - min) * 6))]++);
+  const bins = histogram(rows.map(row => row[selectedFeature]));
+  const min = bins[0]?.lower ?? 0, max = bins.at(-1)?.upper ?? 0;
+  const maxCount = Math.max(...bins.map(bin => bin.count), 1);
 
   return <div className="app">
     <header className="topbar">
@@ -74,6 +87,10 @@ function App() {
       <span className={`status ${model?.status === 'ready' ? 'ready' : ''}`}><i />{connection}</span>
     </header>
     <main>
+      {model?.status !== 'ready' && <div className="notice connection-notice" role="status">
+        <span>{connection}. {connecting ? 'Vui lòng đợi.' : 'Dữ liệu bạn đang nhập được giữ nguyên.'}</span>
+        <button className="secondary" disabled={connecting || busy} onClick={() => setConnectionAttempt(attempt => attempt + 1)}>{connecting ? 'Đang kết nối…' : 'Kết nối lại'}</button>
+      </div>}
       {page === 'Tổng quan' && <>
         <section className="hero">
           <div className="hero-copy"><p className="kicker">Phân loại từ đặc trưng hình học</p><h1>Mỗi hạt nho<br />để lại một hình dạng.</h1><p>Raisin Lab dùng cây quyết định đã cắt tỉa để phân biệt Kecimen và Besni, đồng thời công khai cách mô hình được chọn và kiểm chứng.</p><div className="hero-actions"><button className="primary" onClick={() => setPage('Phân loại')}>Phân loại một mẫu</button><button className="text-action" onClick={() => setPage('Đánh giá')}>Xem bằng chứng đánh giá</button></div></div>
@@ -99,10 +116,10 @@ function App() {
         <section className="panel batch-panel"><div className="section-heading"><div><span className="step">02</span><h2>Hoặc đọc một lô CSV</h2></div><a href="/sample.csv" download>Tải tệp mẫu</a></div><p>Đúng 7 cột đặc trưng, tối đa 1.000 dòng và 1 MB. Tệp mẫu chỉ dùng để thử giao diện.</p><label className="upload"><span>Chọn tệp CSV</span><small>Hệ thống kiểm tra toàn bộ lô trước khi phân loại.</small><input disabled={busy} type="file" accept=".csv,text/csv" onChange={event => { void readCsv(event.target.files?.[0]); event.target.value = ''; }} /></label>
           {rows.length > 0 && <><p><strong>{fileName}</strong> · {rows.length} mẫu hợp lệ về định dạng</p><div className="table-scroll"><table><caption>Xem trước tối đa 5 mẫu</caption><thead><tr>{features.map(f => <th key={f.name}>{f.name}</th>)}</tr></thead><tbody>{rows.slice(0, 5).map((row, i) => <tr key={i}>{features.map(f => <td key={f.name}>{row[f.name]}</td>)}</tr>)}</tbody></table></div>
             <label className="chart-select">Phân bố đặc trưng<select value={selectedFeature} onChange={event => setSelectedFeature(event.target.value)}>{features.map(f => <option key={f.name}>{f.name}</option>)}</select></label>
-            <div className="histogram" role="img" aria-label={`Phân bố ${selectedFeature}: ${counts.join(', ')} mẫu trong 6 khoảng từ ${min} đến ${max}.`}>{counts.map((count, i) => <div className="bin" key={i}><span>{count}</span><div style={{ height: `${count / Math.max(...counts, 1) * 100}px` }} /><small>{(min + (max - min) * i / 6).toFixed(2)}</small></div>)}</div><p className="muted">6 khoảng từ {min} đến {max}; biểu đồ chỉ mô tả tệp vừa tải, không phải dữ liệu đánh giá.</p>
+            <div className="histogram" role="img" aria-label={`Phân bố ${selectedFeature}: ${bins.map(bin => bin.count).join(', ')} mẫu trong ${bins.length} khoảng từ ${min} đến ${max}.`}>{bins.map((bin, i) => <div className="bin" key={i} title={min === max ? `Giá trị ${min}: ${bin.count} mẫu` : `[${bin.lower}, ${bin.upper}${i === bins.length - 1 ? ']' : ')'}: ${bin.count} mẫu`}><span>{bin.count}</span><div style={{ height: `${bin.count / maxCount * 100}px` }} /><small>{Math.abs(bin.lower) >= 1e6 ? bin.lower.toExponential(2) : bin.lower.toFixed(2)}</small></div>)}</div><p className="muted">{min === max ? `Tất cả ${rows.length} mẫu có cùng giá trị ${min}.` : `${bins.length} khoảng từ ${min} đến ${max}.`} Biểu đồ chỉ mô tả tệp vừa tải, không phải dữ liệu đánh giá.</p>
             <button className="primary" disabled={busy || model?.status !== 'ready'} onClick={() => void classify(rows)}>Phân loại {rows.length} mẫu</button></>}
         </section>
-        {result && <Predictions result={result} />}
+        {result && <div ref={resultRef} tabIndex={-1} className="result-anchor"><Predictions result={result} /></div>}
         <div className="feedback" role="status" aria-live="polite">{message}</div>
       </>}
       {page === 'Đánh giá' && <>
