@@ -4,6 +4,8 @@
 **Ngày lập:** 29/09/2026 · **Phiên bản yêu cầu:** 1.0.  
 **Trạng thái:** Đã lập bản yêu cầu để triển khai; chưa có dữ liệu tải về, mô hình hoặc kết quả đánh giá trong bước này.
 
+> **Cập nhật tiến độ 30/09/2026:** Đây là ảnh chụp quyết định tại Bước 1. Các bước dữ liệu, thí nghiệm, đánh giá và tích hợp sau đó đã hoàn thành; trạng thái hiện tại được theo dõi tại [KE_HOACH.md](KE_HOACH.md) và [README dự án](../README.md).
+
 Đây là bản tóm tắt làm việc cho W01 trong [kế hoạch chi tiết](KE_HOACH_PHAN_TICH_NGHIEP_VU_VA_YEU_CAU.md). Yêu cầu bắt buộc lấy từ đề Project 18; các lựa chọn triển khai bên dưới là phương án ban đầu của dự án, không phải xác nhận của giảng viên.
 
 ## 1. Bài toán cần giải quyết

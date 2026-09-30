@@ -4,9 +4,17 @@ Khung bài tập lớn phân loại Kecimen/Besni: **React + TypeScript (TSX)** 
 
 ## Tiến độ và yêu cầu
 
-- [Bước 1 — Chốt bài toán, phạm vi và tiêu chí hoàn thành](docs/BUOC_01_CHOT_YEU_CAU.md): đã lập bản yêu cầu; bước tiếp theo là tải dữ liệu thật.
-- [Kế hoạch phân tích nghiệp vụ và yêu cầu đầy đủ](docs/KE_HOACH_PHAN_TICH_NGHIEP_VU_VA_YEU_CAU.md): căn cứ từ đề, tài liệu cục bộ và GitHub Bài 6 v3.
-- [Checklist thực hiện](docs/KE_HOACH.md): theo dõi phần đã làm và các việc còn lại.
+- Dữ liệu UCI đã được lập hồ sơ, kiểm checksum và kiểm tra chất lượng; tập test 20% được khóa độc lập.
+- Đã chạy hai baseline, cây cắt tỉa, Random Forest và bốn thí nghiệm bắt buộc qua 5 seed.
+- Cây cắt tỉa `ccp_alpha=0.01` đã được chọn bằng CV trên tập phát triển, đánh giá một lần trên test và tích hợp vào Node.js.
+- Web đã trả nhãn/xác suất thật cho form và CSV; dashboard hiển thị metric, ma trận nhầm lẫn, biểu đồ thí nghiệm và model card.
+- Còn phải hoàn thiện báo cáo, slide, nhật ký/phân công nhóm và kiểm tra trên một máy sạch khác.
+
+Tài liệu theo dõi:
+
+- [Bản chốt bài toán và phạm vi](docs/BUOC_01_CHOT_YEU_CAU.md).
+- [Kế hoạch phân tích nghiệp vụ và yêu cầu đầy đủ](docs/KE_HOACH_PHAN_TICH_NGHIEP_VU_VA_YEU_CAU.md).
+- [Checklist thực hiện](docs/KE_HOACH.md).
 
 ## Chạy project
 
@@ -36,29 +44,40 @@ Mở http://127.0.0.1:3001. `npm test` chạy kiểm thử API và validation.
 frontend/src/main.tsx    Ba trang: tổng quan, phân loại, đánh giá
 frontend/src/styles.css  Giao diện responsive
 frontend/public/        CSV minh họa giả lập, không phải dữ liệu UCI
-backend/src/app.js      API, validation và vị trí tích hợp mô hình
+backend/src/app.js      API, validation và suy luận bằng mô hình đã nạp
+backend/src/model.js    Kiểm artifact và suy luận cây bằng Node.js
 backend/src/server.js   Khởi động server Node.js
 backend/test/           Kiểm thử với node:test
 shared/features.json    Tên, đơn vị và miền hợp lệ của 7 đặc trưng
-ml/README.md            Hướng dẫn triển khai phần học máy
-data/README.md          Hồ sơ dữ liệu cần hoàn thiện
+ml/README.md            Hướng dẫn chạy pipeline học máy
+data/README.md          Hồ sơ nguồn, giấy phép và cách tái tạo dữ liệu
+models/                 Artifact phục vụ và metadata đã khóa checksum
+reports/                Kết quả đánh giá, parity, tái lập và biểu đồ
 docs/KE_HOACH.md        Checklist theo đề bài
-requirements.txt        Thư viện Python cho học máy offline
+requirements-lock.txt   Môi trường Python dùng tạo artifact chính thức
 ```
 
-## Đã có / chưa có
+## Trạng thái mô hình
 
-Đã có giao diện tiếng Việt, nhập 7 đặc trưng, đọc CSV và xem phân bố dữ liệu tải lên, API JSON, kiểm tra dữ liệu, trang đánh giá/model card ở trạng thái chưa huấn luyện, build và test.
+Mô hình đang phục vụ: `raisin-1-fe3677bd45ef`, cây quyết định cắt tỉa với `ccp_alpha=0.01`.
 
-**Đây là project khởi đầu, chưa phải bài nộp hoàn chỉnh.** Chưa tải dữ liệu UCI, chia tập, huấn luyện, làm thí nghiệm, tích hợp suy luận, ghi kết quả đánh giá hay viết báo cáo. API dự đoán hiện trả `503 MODEL_NOT_READY` cho dữ liệu hợp lệ. Không có nhãn, xác suất hoặc metric giả.
+| Chỉ số test độc lập (180 mẫu) | Kết quả |
+|---|---:|
+| Accuracy | 83,89% |
+| F1-macro | 0,8389 |
+| ROC-AUC | 0,8741 |
 
-Giới hạn đầu vào hiện là miền hình học lý thuyết; chưa có giới hạn ngoài phân phối học từ train. Không tự điền missing hay chuyển chuỗi JSON thành số. CSV được đọc thành số có kiểm tra trước khi gửi.
+Ma trận nhầm lẫn là `[[75, 15], [14, 76]]`, theo thứ tự lớp Kecimen/Besni. Mô hình được chọn bằng F1-macro CV trên 720 mẫu phát triển trước khi mở test. Kết quả đầy đủ ở `reports/evaluation.json`; thông tin phục vụ ở `models/metadata.json`.
+
+Python và Node.js đã được đối chiếu trên 3.192 trường hợp của bốn mô hình, không khác nhãn hoặc xác suất trong sai số cho phép. Quy trình cũng đã được chạy lại trong một thư mục cô lập trên cùng máy và cho artifact, split, metric và dự đoán giống nhau.
+
+Project chưa phải bộ hồ sơ nộp hoàn chỉnh: còn thiếu báo cáo 15–25 trang, slide, nhật ký/phân công nhóm và xác nhận tái lập trên một máy khác. Cảnh báo ngoài phân phối và hiệu chuẩn xác suất chưa triển khai.
 
 ## API
 
 `GET /api/health`: trạng thái backend và `modelReady`.
 
-`GET /api/model`: schema đặc trưng, lớp, trạng thái, giới hạn; `metrics: null` khi chưa đánh giá.
+`GET /api/model`: schema đặc trưng, phiên bản, metric, kết quả thí nghiệm, giới hạn và bằng chứng parity.
 
 `POST /api/raisin-classify`, header `Content-Type: application/json`:
 
@@ -76,18 +95,29 @@ Giới hạn đầu vào hiện là miền hình học lý thuyết; chưa có g
 }
 ```
 
-Phản hồi hiện tại cho request hợp lệ, HTTP 503:
+Phản hồi cho request hợp lệ, HTTP 200:
 
 ```json
-{"code":"MODEL_NOT_READY","message":"Dữ liệu hợp lệ. Chưa có mô hình đã huấn luyện để dự đoán."}
+{
+  "modelVersion": "raisin-1-fe3677bd45ef",
+  "count": 1,
+  "predictions": [{
+    "rowIndex": 0,
+    "label": "Kecimen",
+    "probabilities": {
+      "Kecimen": 0.8870056497175142,
+      "Besni": 0.11299435028248588
+    }
+  }]
+}
 ```
 
-Mã lỗi: 400 JSON sai; 413 vượt 1 MB; 415 sai Content-Type; 422 thiếu/sai đặc trưng, cột lạ hoặc hơn 1000 mẫu; 503 chưa có model. API lạ trả 404. `errors` trong phản hồi 422 mô tả dòng/cột cần sửa.
+Ví dụ trên chỉ mô tả cấu trúc phản hồi; nhãn và xác suất thực tế phụ thuộc đầu vào. Mã lỗi: 400 JSON sai; 413 vượt 1 MB; 415 sai Content-Type; 422 thiếu/sai đặc trưng, cột lạ hoặc hơn 1000 mẫu; 503 khi model thiếu/hỏng. API lạ trả 404. `errors` trong phản hồi 422 mô tả dòng/cột cần sửa.
 
 ## Công nghệ và tài liệu
 
 - [Vite](https://vite.dev/guide/): React TSX, dev proxy đến Node; không cần cấu hình CORS khi dùng giao diện này.
 - [Express](https://expressjs.com/): backend Node.js.
-- [Dữ liệu Raisin tại UCI](https://archive.ics.uci.edu/dataset/850/raisin): cần ghi ngày tải, checksum và trích dẫn khi tải thật.
+- [Dữ liệu Raisin tại UCI](https://archive.ics.uci.edu/dataset/850/raisin): nguồn đã dùng; ngày tải, checksum, giấy phép và trích dẫn nằm trong `data/`.
 
-Tài liệu bài giảng và file giao đề trong thư mục gốc được giữ nguyên. Công cụ AI hỗ trợ tạo khung project; nhóm cần ghi rõ đóng góp AI và kiểm chứng trong báo cáo.
+Tài liệu bài giảng và file giao đề trong thư mục gốc được giữ nguyên. Công cụ AI đã hỗ trợ xây dựng và kiểm tra project; nhóm phải ghi rõ phạm vi sử dụng AI và cách kiểm chứng trong báo cáo.
