@@ -129,7 +129,7 @@ def main():
                 row[f"train_{key}"] = train_score[key]; row[f"validation_{key}"] = val_score[key]
             records.append(row)
     cv = pd.DataFrame(records)
-    cv.to_csv(ROOT / "reports/cv_results.csv", index=False)
+    cv.to_csv(ROOT / "reports/cv_results.csv", index=False, lineterminator="\r\n")
     summaries = []
     for candidate in definitions:
         rows = cv[cv.candidate == candidate["id"]]
@@ -173,7 +173,7 @@ def main():
             "models": {role: {"joblib_sha256": digest(ROOT / f"models/{role}.joblib"), "json_sha256": digest(ROOT / f"models/{role}.json")} for role in final_choices},
             "versions": {name: importlib.metadata.version(name) for name in ["numpy", "pandas", "scikit-learn", "matplotlib", "openpyxl", "joblib"]}}
     save_json(ROOT / "models/selection_lock.json", lock)
-    dev.describe(include="all").to_csv(ROOT / "reports/development_description.csv")
+    dev.describe(include="all").to_csv(ROOT / "reports/development_description.csv", lineterminator="\r\n")
     plots(dev, cv, summaries, path, fitted)
     print(f"Frozen selected model: {serving_role} / {final_choices[serving_role]['id']}. Test not evaluated.", flush=True)
 

@@ -37,7 +37,7 @@ def main():
     csv = df.to_csv(index=False, lineterminator="\n")
     if output.exists() and output.read_text(encoding="utf-8") != csv:
         raise ValueError("Existing prepared data differs; refusing to overwrite.")
-    output.write_text(csv, encoding="utf-8")
+    output.write_text(csv, encoding="utf-8", newline="\r\n")
     dev, test = train_test_split(df.row_id.to_numpy(), test_size=cfg["test_fraction"], random_state=cfg["split_seed"], stratify=df.Class)
     indexed = df.set_index("row_id")
     folds = []

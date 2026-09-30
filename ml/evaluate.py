@@ -67,7 +67,7 @@ def main():
         "note": "Descriptive paired comparison only; serving model was selected before test.",
     }
     result["feature_importance"] = {role: dict(zip(FEATURES, models[role].named_steps["model"].feature_importances_.tolist())) for role in ["tree", "forest"]}
-    predictions.to_csv(ROOT / "reports/test_predictions.csv", index=False)
+    predictions.to_csv(ROOT / "reports/test_predictions.csv", index=False, lineterminator="\r\n")
     result["predictions_sha256"] = digest(ROOT / "reports/test_predictions.csv")
     save_json(output, result)
     figs = ROOT / "reports/figures"

@@ -168,7 +168,7 @@ def acquire(data_dir: Path, *, offline: bool = False) -> dict:
         "data_changes": "None. Original ZIP, XLSX, ARFF and TXT bytes are preserved.",
         "inspection_environment": {"python": platform.python_version(), "openpyxl": openpyxl.__version__},
     }
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\r\n")
     return manifest
 
 
