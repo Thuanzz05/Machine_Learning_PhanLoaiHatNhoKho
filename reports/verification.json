@@ -1,23 +1,23 @@
 {
-  "checked_at_utc": "2026-09-30T06:34:48.385528+00:00",
-  "base_commit": "291f24798f69948a386c4abb4cb14017e5233586",
+  "checked_at_utc": "2026-09-30T11:26:01.131715+00:00",
+  "base_commit": "eb80c3785a004fda57c171165877fbe15619677b",
   "branch": "viet",
-  "scope": "Current local changes after pull, on the same Windows host; no second-machine validation.",
+  "scope": "Local frontend recovery and histogram changes; Windows host. GitHub workflow configured but not executed remotely.",
   "build": {
     "typescript": "passed",
     "vite": "passed"
   },
   "tests": {
-    "frontend_csv": {
-      "passed": 4,
-      "failed": 0
-    },
     "backend_api_model": {
       "passed": 6,
       "failed": 0
     },
     "python": {
       "passed": 11,
+      "failed": 0
+    },
+    "frontend_csv_api_histogram": {
+      "passed": 8,
       "failed": 0
     }
   },
@@ -39,7 +39,8 @@
       "matplotlib": "3.10.7",
       "openpyxl": "3.1.5",
       "joblib": "1.5.2"
-    }
+    },
+    "checked_before_this_change": true
   },
   "browser": {
     "single_sample": "Kecimen; P(Kecimen)=0.8870056497175142",
@@ -49,7 +50,13 @@
     "pagination": "21-row batch: next page shows only row 21; next disabled",
     "download": "Downloaded CSV files read back: 3 and 21 rows, row order, probabilities and model version verified",
     "dashboard": "Metrics match artifacts; pruning path selector displays /figures/pruning_path.png",
-    "responsive": "375 px viewport (360 px content plus scrollbar); overview, form and dashboard have no horizontal page overflow"
+    "responsive": "375 px viewport (360 px content plus scrollbar); overview, form and dashboard have no horizontal page overflow",
+    "recovery": "Test-only localhost harness: initial HTML HTTP 503 disables prediction; reconnect restores ready state without losing 7 form values or the 21-row CSV.",
+    "model_unavailable_during_prediction": "HTTP 503 shows model error and disables both prediction buttons; reconnect while unavailable keeps them disabled; after recovery the same form predicts Kecimen, 88.70%.",
+    "constant_histogram": "21 equal Area values produce one bar with count 21, plus explanatory text.",
+    "result_navigation": "After prediction, result wrapper receives keyboard focus and scrolls to 130 px from viewport top.",
+    "mobile_recovery_notice": "375 px viewport: retry notice/button visible; document clientWidth and scrollWidth both 360 px.",
+    "current_validation_scope": "Recovery, unavailable model, constant histogram, result focus/scroll, mobile retry and normal-server prediction rechecked now. Other browser checks retained from previous verification."
   },
   "model_version": "raisin-1-fe3677bd45ef",
   "deferred_by_user": [
@@ -57,5 +64,25 @@
   ],
   "remaining_external_validation": [
     "Reproduce on a second physical computer"
+  ],
+  "previous_verification_at_utc": "2026-09-30T06:34:48.385528+00:00",
+  "verification_command": "npm run verify",
+  "parity": {
+    "passed": true,
+    "cases": 3192,
+    "label_mismatches": 0,
+    "max_probability_error": 0
+  },
+  "ci": {
+    "status": "configured_not_executed_on_GitHub",
+    "environments": [
+      "ubuntu-latest / Node 22.12.0 / Python 3.12",
+      "windows-latest / Node 24.13.0 / Python 3.12"
+    ],
+    "full_reproduction": "Manual workflow_dispatch with reproduce=true"
+  },
+  "screenshots": [
+    "reports/screenshots/prediction.png",
+    "reports/screenshots/connection-retry-mobile.png"
   ]
 }
