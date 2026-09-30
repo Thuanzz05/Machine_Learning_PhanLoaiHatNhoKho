@@ -36,7 +36,19 @@ npm run build
 npm start
 ```
 
-Mở http://127.0.0.1:3001. `npm test` chạy 4 kiểm thử CSV frontend và 6 kiểm thử API/mô hình backend.
+Mở http://127.0.0.1:3001. Nếu API khởi động muộn hoặc kết nối bị gián đoạn, bấm **Kết nối lại** trên web; dữ liệu form và CSV đã đọc được giữ nguyên. Sau khi phân loại, giao diện tự chuyển đến kết quả.
+
+## Kiểm tra chương trình
+
+```sh
+npm run verify
+```
+
+Lệnh này chạy 8 kiểm thử frontend (CSV, lỗi API và histogram), 6 kiểm thử API/mô hình backend, kiểm tra TypeScript, build web rồi đối chiếu 3.192 trường hợp Python/Node. Có thể dùng `npm test` để chỉ chạy kiểm thử.
+
+Workflow [Verify project](.github/workflows/verify.yml) đã được cấu hình để chạy các kiểm tra trên Windows và Ubuntu khi push hoặc mở pull request. Workflow còn tải nguồn UCI có kiểm checksum và chạy 11 kiểm thử Python. Muốn tái lập toàn bộ 575 lượt fit, chạy thủ công trong GitHub Actions và bật tùy chọn `reproduce`.
+
+Workflow mới chỉ được cấu hình trong mã nguồn; chưa có kết quả chạy GitHub Actions cho thay đổi này. Kết quả đã kiểm chứng tại máy hiện tại được lưu trong `reports/verification.json`.
 
 ## Tái lập học máy
 
