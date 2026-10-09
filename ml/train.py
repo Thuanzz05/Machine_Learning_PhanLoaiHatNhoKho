@@ -44,6 +44,10 @@ def complexity(model):
     trees = estimator.estimators_ if isinstance(estimator, RandomForestClassifier) else [estimator]
     return float(np.mean([t.get_n_leaves() if hasattr(t, "tree_") else 1 for t in trees])), len(trees)
 
+def rank(candidate, cfg):
+    return (-round(candidate["f1_macro_mean"], cfg["score_tie_decimal_places"]),
+            candidate["mean_leaves"], candidate["n_trees"], candidate["id"])
+
 def export_model(model, candidate):
     estimator = model.named_steps["model"]
     if isinstance(estimator, DummyClassifier):
@@ -143,12 +147,10 @@ def main():
             summary["seed_results"].append({"seed": int(seed), **{m: float(row[f"validation_{m}"]) for m in ("accuracy", "f1_macro", "roc_auc")}})
         summary.update(mean_leaves=float(rows.leaves.mean()), n_trees=int(rows.trees.iloc[0]), fit_ms_mean=float(rows.fit_ms.mean()), predict_ms_mean=float(rows.predict_ms.mean()))
         summaries.append(summary)
-    def rank(s):
-        return (-round(s["f1_macro_mean"], cfg["score_tie_decimal_places"]), s["mean_leaves"], s["n_trees"], s["id"])
-    tree = min([s for s in summaries if s["experiment"] == "pruning" and s["params"]["ccp_alpha"] > 0], key=rank)
-    forest = min([s for s in summaries if s["experiment"] == "forest"], key=rank)
+    tree = min([s for s in summaries if s["experiment"] == "pruning" and s["params"]["ccp_alpha"] > 0], key=lambda s: rank(s, cfg))
+    forest = min([s for s in summaries if s["experiment"] == "forest"], key=lambda s: rank(s, cfg))
     final_choices = {"majority": summaries[0], "stump": summaries[1], "tree": tree, "forest": forest}
-    serving_role = min(final_choices, key=lambda role: rank(final_choices[role]))
+    serving_role = min(final_choices, key=lambda role: rank(final_choices[role], cfg))
     fitted = {}
     xdev, ydev = xy(dev)
     for role, candidate in final_choices.items():
