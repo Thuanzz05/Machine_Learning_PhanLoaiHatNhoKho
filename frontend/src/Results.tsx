@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { predictionCsv } from './predictionCsv';
 
 type Score = { accuracy: number; f1_macro: number; roc_auc: number; n: number; confusion_matrix: number[][]; per_class: Record<string, { precision: number; recall: number; f1: number; support: number }> };
 type CV = { id: string; f1_macro_mean: number; f1_macro_std: number; accuracy_mean: number; roc_auc_mean: number; params: Record<string, unknown> };
@@ -10,9 +11,10 @@ const labels: Record<string, string> = { majority: 'Lớp phổ biến', stump: 
 
 export function Predictions({ result }: { result: PredictionResult }) {
   const [page, setPage] = useState(0);
+  useEffect(() => setPage(0), [result]);
   const start = page * 20;
   function download() {
-    const text = ['row,label,p_Kecimen,p_Besni,model_version', ...result.predictions.map(p => `${p.rowIndex+1},${p.label},${p.probabilities.Kecimen},${p.probabilities.Besni},${result.modelVersion}`)].join('\r\n');
+    const text = predictionCsv(result);
     const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = 'raisin-predictions.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
