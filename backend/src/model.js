@@ -6,7 +6,7 @@ import features from '../../shared/features.json' with { type: 'json' };
 const modelsDir = fileURLToPath(new URL('../../models/', import.meta.url));
 
 export function validateArtifact(model) {
-  if (model.schemaVersion !== 1 || model.inputDtype !== 'float32' || model.threshold !== 0.5 || model.tieClass !== 'Besni' ||
+  if (!model || typeof model !== 'object' || model.schemaVersion !== 1 || model.inputDtype !== 'float32' || model.threshold !== 0.5 || model.tieClass !== 'Besni' ||
       JSON.stringify(model.features) !== JSON.stringify(features.map(f => f.name)) ||
       JSON.stringify(model.classes) !== JSON.stringify(['Kecimen', 'Besni']) ||
       !Array.isArray(model.trees) || model.trees.length < 1 || model.trees.length > 300) throw new Error('Invalid model schema.');
