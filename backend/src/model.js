@@ -43,6 +43,24 @@ export function predictRows(model, rows) {
   });
 }
 
+export function explainRow(model, row) {
+  if (model.trees.length !== 1) return null;
+  const tree = model.trees[0];
+  const x = model.features.map(name => Math.fround(row[name]));
+  const path = [];
+  let node = 0;
+  while (tree.left[node] !== -1) {
+    const featureIndex = tree.feature[node];
+    const goLeft = x[featureIndex] <= tree.threshold[node];
+    path.push({
+      feature: model.features[featureIndex], value: x[featureIndex],
+      operator: goLeft ? '≤' : '>', threshold: tree.threshold[node],
+    });
+    node = goLeft ? tree.left[node] : tree.right[node];
+  }
+  return path;
+}
+
 export function loadModel(directory = modelsDir) {
   try {
     const bytes = fs.readFileSync(`${directory}/serving.json`);

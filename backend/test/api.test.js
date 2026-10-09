@@ -46,7 +46,9 @@ test('ready API returns real probabilities, ordered batches and model evidence',
   body.predictions.forEach((p,i) => { assert.equal(p.rowIndex,i); assert.ok(['Besni','Kecimen'].includes(p.label)); assert.ok(Math.abs(p.probabilities.Besni+p.probabilities.Kecimen-1)<1e-12); });
   const reordered = Object.fromEntries(Object.entries(row).reverse());
   const other = await (await post([reordered])).json();
-  assert.deepEqual(body.predictions[0],other.predictions[0]);
+  assert.equal(body.predictions[0].label,other.predictions[0].label);
+  assert.deepEqual(body.predictions[0].probabilities,other.predictions[0].probabilities);
+  assert.ok(other.predictions[0].explanation.length > 0);
   assert.equal((await post([{...row,Area:1e100,ConvexArea:1e100}])).status,422);
   assert.equal((await post(Array(1001).fill(row))).status,422);
   assert.equal((await post([row])).status,200);

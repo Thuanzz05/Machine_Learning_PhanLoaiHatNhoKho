@@ -1,7 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import features from '../../shared/features.json' with { type: 'json' };
-import { loadModel, predictRows } from './model.js';
+import { explainRow, loadModel, predictRows } from './model.js';
 
 export function validateRows(rows) {
   if (!Array.isArray(rows) || rows.length < 1 || rows.length > 1000) {
@@ -43,6 +43,7 @@ app.post('/api/raisin-classify', (req, res) => {
   if (errors.length) return res.status(422).json({ code: 'INVALID_INPUT', message: 'Dữ liệu đầu vào chưa hợp lệ.', errors });
   if (!modelState.ready) return res.status(503).json({ code: 'MODEL_NOT_READY', message: 'Mô hình chưa sẵn sàng. Kiểm tra tệp mô hình và kết quả đánh giá.' });
   const predictions = predictRows(modelState.artifact, req.body.rows);
+  if (predictions.length === 1) predictions[0].explanation = explainRow(modelState.artifact, req.body.rows[0]);
   return res.json({ modelVersion: modelState.metadata.modelVersion, count: predictions.length, predictions });
 });
 app.use('/api', (_req, res) => res.status(404).json({ code: 'NOT_FOUND', message: 'API không tồn tại.' }));

@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadModel, validateArtifact, predictRows } from '../src/model.js';
+import { explainRow, loadModel, validateArtifact, predictRows } from '../src/model.js';
 import features from '../../shared/features.json' with { type: 'json' };
 
 const schema = { schemaVersion: 1, inputDtype: 'float32', threshold: .5, tieClass: 'Besni', features: features.map(f=>f.name), classes: ['Kecimen','Besni'] };
@@ -18,6 +18,8 @@ test('float32 conversion and full threshold use match tree inference',()=>{
   const model=validateArtifact({...schema,trees:[{left:[1,-1,-1],right:[2,-1,-1],feature:[0,-2,-2],threshold:[1,-2,-2],pBesni:[.5,.2,.8]}]});
   const predictions=predictRows(model,[{...row,Area:1+2e-8},{...row,Area:1+2e-7}]);
   assert.deepEqual(predictions.map(p=>p.label),['Kecimen','Besni']);
+  assert.deepEqual(explainRow(model,{...row,Area:1+2e-8}),[{feature:'Area',value:1,operator:'≤',threshold:1}]);
+  assert.equal(explainRow({...model,trees:[...model.trees,...model.trees]},row),null);
 });
 test('invalid graphs and missing model fail closed',()=>{
   assert.equal(loadModel('missing-model-directory').ready,false);
